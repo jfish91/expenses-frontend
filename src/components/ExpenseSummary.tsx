@@ -11,17 +11,21 @@ export default function ExpenseSummary({
   count,
 }: ExpenseSummaryProps) {
   return (
-    <section className="summary">
-      <h2>Total expenses</h2>
+    <section className="card summary-card">
+      <div className="card-body p-4">
+        <p className="summary-label">Total expenses</p>
 
-      <p className="total">
-        {total.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        })}
-      </p>
+        <p className="summary-total">
+          {total.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          })}
+        </p>
 
-      <p>{count} transactions</p>
+        <p className="text-secondary mb-0 mt-2">
+          {count} {count === 1 ? 'transaction' : 'transactions'}
+        </p>
+      </div>
     </section>
   )
 }

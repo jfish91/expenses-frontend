@@ -1,12 +1,9 @@
-
 import { useState } from 'react'
 import ExpenseSummary from './components/ExpenseSummary'
 import ExpenseList from './components/ExpenseList'
 import type { Expense } from './types'
 
 export default function App() {
-
-  // useState stores current list of expenses and allows for updating the list when an expense is deleted
   const [expenses, setExpenses] = useState<Expense[]>([
     {
       id: 1,
@@ -43,10 +40,24 @@ export default function App() {
   )
 
   return (
-    <main className="app">
-      <header className="app-header">
-        <h1>Expenses</h1>
-        <p>Track and manage your spending.</p>
+    <main className="app container">
+      <header className="app-header d-flex justify-content-between align-items-center gap-3">
+        <div>
+          <h1>Expenses</h1>
+          <p>Track and manage your spending.</p>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() =>
+            document.getElementById('expense-form')?.scrollIntoView({
+              behavior: 'smooth',
+            })
+          }
+        >
+          Add expense
+        </button>
       </header>
 
       <ExpenseSummary

@@ -14,15 +14,21 @@ export default function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
     <section className="expense-section">
       <h2>Recent expenses</h2>
 
-      <div className="expense-list">
-        {expenses.map((expense) => (
-            <ExpenseRow 
-                key={expense.id}
-                expense={expense}
-                onDelete={onDelete}
+      {expenses.length === 0 ? (
+        <p className="text-secondary">
+          No expenses yet. Add your first expense above.
+        </p>
+      ) : (
+        <div className="expense-list">
+          {expenses.map((expense) => (
+            <ExpenseRow
+              key={expense.id}
+              expense={expense}
+              onDelete={onDelete}
             />
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

@@ -10,22 +10,29 @@ type ExpenseRowProps = {
 export default function ExpenseRow({ expense, onDelete }: ExpenseRowProps) {
   return (
     <article className="expense-row">
-        <div>
-            <h3>{expense.name}</h3>
-            <p>
-            {expense.category} · {expense.date}
-            </p>
-        </div>
+      <div>
+        <p className="expense-name">{expense.name}</p>
+        <p className="expense-details">
+          {expense.category} · {expense.date}
+        </p>
+     </div>
 
-        <strong>
-            {expense.amount.toLocaleString('en-US', {
+      <div className="expense-actions">
+        <p className="expense-amount">
+          {expense.amount.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
-            })}
-        </strong>
-        <button onClick={() => onDelete(expense.id)}>
-            Delete
+          })}
+        </p>
+
+        <button
+          type="button"
+          className="btn btn-outline-danger btn-sm"
+          onClick={() => onDelete(expense.id)}
+        >
+          Delete
         </button>
+      </div>
     </article>
   )
 }
