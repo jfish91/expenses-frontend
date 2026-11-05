@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import ExpenseSummary from './components/ExpenseSummary'
 import ExpenseList from './components/ExpenseList'
+// import ExpenseForm from './components/ExpenseForm'
+import ExpenseModal from './components/ExpenseModal'
 import type { Expense } from './types'
 
 export default function App() {
@@ -11,6 +13,7 @@ export default function App() {
       category: 'Food',
       amount: 84.32,
       date: '2026-10-25',
+      description: 'Weekly grocery shopping',
     },
     {
       id: 2,
@@ -18,6 +21,7 @@ export default function App() {
       category: 'Transportation',
       amount: 48.5,
       date: '2026-10-24',
+      description: 'Filled up tank',
     },
     {
       id: 3,
@@ -28,10 +32,26 @@ export default function App() {
     },
   ])
 
+  // creates state variable w initial val of false to track if form is open
+  // isFormOpen: current val of the state, in this case false
+  // setIsFormOpen: func that can be used to update the state
+  // array destructuring unpacks the 2 values returned by useState 
+  const [isFormOpen, setIsFormOpen] = useState(false)
+
   function handleDelete(id: number) {
     setExpenses((currentExpenses) =>
       currentExpenses.filter((expense) => expense.id !== id),
     )
+  }
+
+  function handleAdd(expense: Omit<Expense, 'id'>) {
+    setExpenses((currentExpenses) => [
+      { ...expense, id: Date.now() },
+      ...currentExpenses,
+    ])
+
+    // close new expense form
+    setIsFormOpen(false)
   }
 
   const totalExpenses = expenses.reduce(
@@ -50,11 +70,13 @@ export default function App() {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() =>
-            document.getElementById('expense-form')?.scrollIntoView({
-              behavior: 'smooth',
-            })
-          }
+          // on clicking button, trigger setIsFormOpen func
+          onClick={() => setIsFormOpen(true)}
+          // onClick={() =>
+          //   document.getElementById('expense-form')?.scrollIntoView({
+          //     behavior: 'smooth',
+          //   })
+          // }
         >
           Add expense
         </button>
@@ -65,10 +87,23 @@ export default function App() {
         count={expenses.length}
       />
 
+      {/* <ExpenseForm 
+        onAdd={handleAdd}
+      /> */}
+
       <ExpenseList
         expenses={expenses}
         onDelete={handleDelete}
       />
+
+      {/* logic for showing and hiding form 
+      if condition is true --> render component, if false --> dont render */}
+      {isFormOpen && (
+        <ExpenseModal
+          onClose={() => setIsFormOpen(false)}
+          onAdd={handleAdd}
+        />
+      )}
     </main>
   )
 }
