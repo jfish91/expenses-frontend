@@ -1,3 +1,5 @@
+import './App.css'
+
 import { useState } from 'react'
 import ExpenseSummary from './components/ExpenseSummary'
 import ExpenseList from './components/ExpenseList'
