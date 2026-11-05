@@ -1,6 +1,7 @@
 import './App.css'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
 import ExpenseSummary from './components/ExpenseSummary'
 import ExpenseList from './components/ExpenseList'
 // import ExpenseForm from './components/ExpenseForm'
@@ -8,38 +9,71 @@ import ExpenseModal from './components/ExpenseModal'
 import type { Expense } from './types'
 
 export default function App() {
-  const [expenses, setExpenses] = useState<Expense[]>([
-    {
-      id: "1",
-      vendor: 'Groceries',
-      category: 'Food',
-      amount: 84.32,
-      date: '2026-10-25',
-      description: 'Weekly grocery shopping',
-    },
-    {
-      id: "2",
-      vendor: 'Gas',
-      category: 'Transportation',
-      amount: 48.5,
-      date: '2026-10-24',
-      description: 'Filled up tank',
-    },
-    {
-      id: "3",
-      vendor: 'Restaurant',
-      category: 'Food',
-      amount: 36.75,
-      date: '2026-10-23',
-      description: 'Dinner with friends',
-    },
-  ])
+  
+  
+  // manually created expenses for testing -- replaced by backend fetch
+  // const [expenses, setExpenses] = useState<Expense[]>([
+  //   {
+  //     id: "1",
+  //     vendor: 'Groceries',
+  //     category: 'Food',
+  //     amount: 84.32,
+  //     date: '2026-10-25',
+  //     description: 'Weekly grocery shopping',
+  //   },
+  //   {
+  //     id: "2",
+  //     vendor: 'Gas',
+  //     category: 'Transportation',
+  //     amount: 48.5,
+  //     date: '2026-10-24',
+  //     description: 'Filled up tank',
+  //   },
+  //   {
+  //     id: "3",
+  //     vendor: 'Restaurant',
+  //     category: 'Food',
+  //     amount: 36.75,
+  //     date: '2026-10-23',
+  //     description: 'Dinner with friends',
+  //   },
+  // ])
+
+  // start w empty array b/c it will be populated by backend
+  const [expenses, setExpenses] = useState<Expense[]>([])
 
   // creates state variable w initial val of false to track if form is open
   // isFormOpen: current val of the state, in this case false
   // setIsFormOpen: func that can be used to update the state
   // array destructuring unpacks the 2 values returned by useState 
   const [isFormOpen, setIsFormOpen] = useState(false)
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+
+  useEffect(() => {
+    async function fetchExpenses() {
+      try {
+        const response = await fetch('http://localhost:8080/expenses')
+        console.log("response:", response)
+        if (!response.ok) {
+          throw new Error('Failed to fetch expenses')
+        }
+
+        const expenses = await response.json()
+        console.log("expenses:", expenses)
+        setExpenses(expenses)
+      } catch (err) {
+        console.error(err)
+        setError(err instanceof Error ? 'Error fetching expenses: ' + err.message : 'An unknown error occurred')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchExpenses()
+  }, [])
 
   function handleDelete(id: string) {
     setExpenses((currentExpenses) =>
@@ -61,6 +95,14 @@ export default function App() {
     (total, expense) => total + expense.amount,
     0,
   )
+
+  if (isLoading) {
+  return <div className="container mt-4">Loading expenses...</div>
+}
+
+if (error) {
+  return <div className="container mt-4 alert alert-danger">{error}</div>
+}
 
   return (
     <main className="app container">
