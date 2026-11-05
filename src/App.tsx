@@ -6,7 +6,7 @@ import ExpenseSummary from './components/ExpenseSummary'
 import ExpenseList from './components/ExpenseList'
 // import ExpenseForm from './components/ExpenseForm'
 import ExpenseModal from './components/ExpenseModal'
-import type { Expense } from './types'
+import type { CreateExpenseRequest, Expense } from './types'
 
 export default function App() {
   
@@ -42,6 +42,8 @@ export default function App() {
   // start w empty array b/c it will be populated by backend
   const [expenses, setExpenses] = useState<Expense[]>([])
 
+  const [categories, setCategories] = useState<string[]>([])
+
   // creates state variable w initial val of false to track if form is open
   // isFormOpen: current val of the state, in this case false
   // setIsFormOpen: func that can be used to update the state
@@ -50,20 +52,31 @@ export default function App() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
 
   useEffect(() => {
     async function fetchExpenses() {
       try {
+        // TODO: replace hardcoded URL with environment variable
         const response = await fetch('http://localhost:8080/expenses')
         console.log("response:", response)
         if (!response.ok) {
           throw new Error('Failed to fetch expenses')
         }
 
-        const expenses = await response.json()
+        const expenses: Expense[] = await response.json()
         console.log("expenses:", expenses)
         setExpenses(expenses)
+
+        const categoriesReponse = await fetch('http://localhost:8080/categories')
+        if (!categoriesReponse.ok) {
+          throw new Error('Failed to fetch categories')
+        }
+
+        const categories: string[] = await categoriesReponse.json()
+        setCategories(categories)
+
       } catch (err) {
         console.error(err)
         setError(err instanceof Error ? 'Error fetching expenses: ' + err.message : 'An unknown error occurred')
@@ -81,14 +94,35 @@ export default function App() {
     )
   }
 
-  function handleAdd(expense: Omit<Expense, 'id'>) {
-    setExpenses((currentExpenses) => [
-      { ...expense, id: Date.now().toString() },
-      ...currentExpenses,
-    ])
+  async function handleAdd(expense: CreateExpenseRequest) {
 
-    // close new expense form
-    setIsFormOpen(false)
+    try {
+
+      const response = await fetch('http://localhost:8080/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(expense)
+      })
+      console.log("response:", response)
+      if (!response.ok) {
+        throw new Error('Failed to add expense')
+      }
+
+      const newExpense: Expense = await response.json()
+
+      setExpenses((currentExpenses) => [
+        newExpense,
+        ...currentExpenses,
+      ])
+
+      // close new expense form
+      setIsFormOpen(false)
+    } catch(err) {
+      console.error(err)
+      setSubmitError(err instanceof Error ? err.message : 'An unknown error occurred')
+    }
   }
 
   const totalExpenses = expenses.reduce(
@@ -96,7 +130,7 @@ export default function App() {
     0,
   )
 
-  if (isLoading) {
+if (isLoading) {
   return <div className="container mt-4">Loading expenses...</div>
 }
 
@@ -136,6 +170,12 @@ if (error) {
         onAdd={handleAdd}
       /> */}
 
+      {submitError && (
+        <div className="alert alert-danger mt-3">
+          {submitError}
+        </div>
+      )}
+
       <ExpenseList
         expenses={expenses}
         onDelete={handleDelete}
@@ -147,6 +187,7 @@ if (error) {
         <ExpenseModal
           onClose={() => setIsFormOpen(false)}
           onAdd={handleAdd}
+          categories={categories}
         />
       )}
     </main>

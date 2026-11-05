@@ -1,12 +1,20 @@
 import { useState } from 'react'              // react hook for storing anf updating component state
 import type { SyntheticEvent } from 'react'   // TypeScript type for React events
-import type { Expense } from '../types'       // TypeScript def of Expense
+// import type { Expense } from '../types'       // TypeScript def of Expense
+import type { CreateExpenseRequest } from '../types' // TypeScript def of CreateExpenseRequest
 
+// old version, when ExpenseForm was passed an onAdd function that accepted an Expense object
+// type ExpenseFormProps = {
+//   // onAdd: function passed into ExpenseForm, accepts one argument, an Expense
+//   // Omit<Expense, 'id'> means the argument is an Expense object but without the id property **handled in App.tsx**
+//   // void means function returns nothing
+//     onAdd: (expense: Omit<Expense, 'id'>) => void
+// }
+
+// sending creation request to backend rather than completed expense obj
 type ExpenseFormProps = {
-  // onAdd: function passed into ExpenseForm, accepts one argument, an Expense
-  // Omit<Expense, 'id'> means the argument is an Expense object but without the id property **handled in App.tsx**
-  // void means function returns nothing
-    onAdd: (expense: Omit<Expense, 'id'>) => void
+  onAdd: (expense: CreateExpenseRequest) => void
+  categories: string[]
 }
 
 // function ExpenseForm declares component
@@ -14,7 +22,7 @@ type ExpenseFormProps = {
 // export default function ExpenseForm(props: ExpenseFormProps) {
 //   const onAdd = props.onAdd
 // { onAdd } extracts onAdd prop from the props obj 
-export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
+export default function ExpenseForm({ onAdd, categories }: ExpenseFormProps) {
   // each input must have its own state and event handler
   // 1. create state variable for each input field
   // 2. connect it to an input w value prop and onChange event handler
@@ -76,13 +84,11 @@ return (
           >
             {/* TODO: fill categories from elsewhere? from backend? */}
             <option value="">Select a category</option>
-            <option value="Food">Food</option>
-            <option value="Transportation">Transportation</option>
-            <option value="Housing">Housing</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Other">Other</option>
+            {categories.map((categoryOption) => (
+              <option key={categoryOption} value={categoryOption}>
+                {categoryOption.charAt(0) + categoryOption.slice(1).toLowerCase()}
+              </option>
+            ))}
           </select>
         </div>
 

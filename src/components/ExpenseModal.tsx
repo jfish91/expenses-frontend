@@ -1,14 +1,17 @@
 import ExpenseForm from './ExpenseForm'
-import type { Expense } from '../types'
+// import type { Expense } from '../types'
+import type { CreateExpenseRequest } from '../types'
 
 type ExpenseModalProps = {
   onClose: () => void
-  onAdd: (expense: Omit<Expense, 'id'>) => void
+  onAdd: (expense: CreateExpenseRequest) => void
+  categories: string[]
 }
 
 export default function ExpenseModal({
   onClose,
   onAdd,
+  categories,
 }: ExpenseModalProps) {
   return (
     <div
@@ -40,7 +43,7 @@ export default function ExpenseModal({
             />
           </div>
 
-          <ExpenseForm onAdd={onAdd} />
+          <ExpenseForm onAdd={onAdd} categories={categories} />
         </div>
       </div>
     </div>
