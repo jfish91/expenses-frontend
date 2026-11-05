@@ -1,9 +1,10 @@
 
 export type Expense = {
-  id: number
-  name: string
-  category: string
-  amount: number
-  date: string
+  id: string
+  vendor: string
   description?: string
+  amount: number
+  category: string
+  date: string
+  createdAt?: string
 }

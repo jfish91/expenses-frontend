@@ -10,27 +10,28 @@ import type { Expense } from './types'
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>([
     {
-      id: 1,
-      name: 'Groceries',
+      id: "1",
+      vendor: 'Groceries',
       category: 'Food',
       amount: 84.32,
       date: '2026-10-25',
       description: 'Weekly grocery shopping',
     },
     {
-      id: 2,
-      name: 'Gas',
+      id: "2",
+      vendor: 'Gas',
       category: 'Transportation',
       amount: 48.5,
       date: '2026-10-24',
       description: 'Filled up tank',
     },
     {
-      id: 3,
-      name: 'Restaurant',
+      id: "3",
+      vendor: 'Restaurant',
       category: 'Food',
       amount: 36.75,
       date: '2026-10-23',
+      description: 'Dinner with friends',
     },
   ])
 
@@ -40,7 +41,7 @@ export default function App() {
   // array destructuring unpacks the 2 values returned by useState 
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  function handleDelete(id: number) {
+  function handleDelete(id: string) {
     setExpenses((currentExpenses) =>
       currentExpenses.filter((expense) => expense.id !== id),
     )
@@ -48,7 +49,7 @@ export default function App() {
 
   function handleAdd(expense: Omit<Expense, 'id'>) {
     setExpenses((currentExpenses) => [
-      { ...expense, id: Date.now() },
+      { ...expense, id: Date.now().toString() },
       ...currentExpenses,
     ])
 

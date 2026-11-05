@@ -4,7 +4,7 @@ import ExpenseRow from './ExpenseRow'
 
 type ExpenseListProps = {
   expenses: Expense[]
-  onDelete: (id: number) => void
+  onDelete: (id: string) => void
 }
 
 // creates an array and renders a list of ExpenseRow components for each expense in the array

@@ -1,31 +1,44 @@
-import { useState } from 'react'
-import type { SyntheticEvent } from 'react'
-import type { Expense } from '../types'
+import { useState } from 'react'              // react hook for storing anf updating component state
+import type { SyntheticEvent } from 'react'   // TypeScript type for React events
+import type { Expense } from '../types'       // TypeScript def of Expense
 
 type ExpenseFormProps = {
+  // onAdd: function passed into ExpenseForm, accepts one argument, an Expense
+  // Omit<Expense, 'id'> means the argument is an Expense object but without the id property **handled in App.tsx**
+  // void means function returns nothing
     onAdd: (expense: Omit<Expense, 'id'>) => void
 }
 
+// function ExpenseForm declares component
+// export default allows other files to import it
+// export default function ExpenseForm(props: ExpenseFormProps) {
+//   const onAdd = props.onAdd
+// { onAdd } extracts onAdd prop from the props obj 
 export default function ExpenseForm({ onAdd }: ExpenseFormProps) {
-    const [name, setName] = useState('')
+  // each input must have its own state and event handler
+  // 1. create state variable for each input field
+  // 2. connect it to an input w value prop and onChange event handler
+  // 3. update it with onChange event handler
+    const [vendor, setVendor] = useState('')
     const [category, setCategory] = useState('')
     const [amount, setAmount] = useState('')
     const [date, setDate] = useState('')
     const [description, setDescription] = useState('')
 
     function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
-        event.preventDefault()
+        event.preventDefault() // prevent default form submission behavior of page reload
         const newExpense = {
-            name: name.trim(),
+            vendor: vendor.trim(),
             category,
-            amount: Number(amount),
+            amount: Number(amount), // convert amount from string to number
             date,
             description: description.trim(),
         }
 
         onAdd(newExpense)
         
-        setName('')
+        // reset form values for later
+        setVendor('')
         setCategory('')
         setAmount('')
         setDate('')
@@ -35,15 +48,15 @@ return (
   <div className="modal-body">
     <form onSubmit={handleSubmit}>
       <div className="mb-3">
-        <label htmlFor="name" className="form-label">
-          Expense name
+        <label htmlFor="vendor" className="form-label">
+          Vendor
         </label>
         <input
-          id="name"
+          id="vendor"
           className="form-control"
           type="text"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
+          value={vendor}
+          onChange={(event) => setVendor(event.target.value)}
           placeholder="e.g. Groceries"
           required
         />
