@@ -56,11 +56,12 @@ export default function App() {
 
 
   useEffect(() => {
+    // get expenses from backend
     async function fetchExpenses() {
       try {
         // TODO: replace hardcoded URL with environment variable
         const response = await fetch('http://localhost:8080/expenses')
-        console.log("response:", response)
+        console.log("get all expenses response:", response)
         if (!response.ok) {
           throw new Error('Failed to fetch expenses')
         }
@@ -88,10 +89,29 @@ export default function App() {
     fetchExpenses()
   }, [])
 
-  function handleDelete(id: string) {
-    setExpenses((currentExpenses) =>
-      currentExpenses.filter((expense) => expense.id !== id),
-    )
+  async function handleDelete(id: string) {
+    try {
+
+      // hit backend to delete expense based on id
+      const response = await fetch(`http://localhost:8080/expenses/${id}`, {
+        method: 'DELETE',
+      })
+
+      console.log("delete response:", response)
+      if (!response.ok) {
+        throw new Error('Failed to delete expense')
+      }
+      
+      // remove expense from state after successful deletion from backend
+      setExpenses((currentExpenses) =>
+        currentExpenses.filter((expense) => expense.id !== id),
+      )
+
+
+    } catch (err) {
+      console.error(err)
+      setError(err instanceof Error ? err.message : 'An unknown error occurred')
+    }
   }
 
   async function handleAdd(expense: CreateExpenseRequest) {
@@ -105,13 +125,15 @@ export default function App() {
         },
         body: JSON.stringify(expense)
       })
-      console.log("response:", response)
+
+      console.log("post expense response:", response)
       if (!response.ok) {
         throw new Error('Failed to add expense')
       }
 
       const newExpense: Expense = await response.json()
 
+      // add expense to state after successful addition to backend
       setExpenses((currentExpenses) => [
         newExpense,
         ...currentExpenses,
