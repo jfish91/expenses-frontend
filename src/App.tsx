@@ -8,36 +8,10 @@ import ExpenseList from './components/ExpenseList'
 import ExpenseModal from './components/ExpenseModal'
 import type { CreateExpenseRequest, Expense } from './types'
 
+import expenseService from './services/expenseService'
+
 export default function App() {
   
-  
-  // manually created expenses for testing -- replaced by backend fetch
-  // const [expenses, setExpenses] = useState<Expense[]>([
-  //   {
-  //     id: "1",
-  //     vendor: 'Groceries',
-  //     category: 'Food',
-  //     amount: 84.32,
-  //     date: '2026-10-25',
-  //     description: 'Weekly grocery shopping',
-  //   },
-  //   {
-  //     id: "2",
-  //     vendor: 'Gas',
-  //     category: 'Transportation',
-  //     amount: 48.5,
-  //     date: '2026-10-24',
-  //     description: 'Filled up tank',
-  //   },
-  //   {
-  //     id: "3",
-  //     vendor: 'Restaurant',
-  //     category: 'Food',
-  //     amount: 36.75,
-  //     date: '2026-10-23',
-  //     description: 'Dinner with friends',
-  //   },
-  // ])
 
   // start w empty array b/c it will be populated by backend
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -60,22 +34,11 @@ export default function App() {
     async function fetchExpenses() {
       try {
         // TODO: replace hardcoded URL with environment variable
-        const response = await fetch('http://localhost:8080/expenses')
-        console.log("get all expenses response:", response)
-        if (!response.ok) {
-          throw new Error('Failed to fetch expenses')
-        }
-
-        const expenses: Expense[] = await response.json()
-        console.log("expenses:", expenses)
+        const expenses = await expenseService.getExpenses()
+        console.log("get all expenses response:", expenses)
         setExpenses(expenses)
 
-        const categoriesReponse = await fetch('http://localhost:8080/categories')
-        if (!categoriesReponse.ok) {
-          throw new Error('Failed to fetch categories')
-        }
-
-        const categories: string[] = await categoriesReponse.json()
+        const categories = await expenseService.getCategories()
         setCategories(categories)
 
       } catch (err) {
@@ -92,15 +55,9 @@ export default function App() {
   async function handleDelete(id: string) {
     try {
 
+      console.log("deleting expense with id:", id)
       // hit backend to delete expense based on id
-      const response = await fetch(`http://localhost:8080/expenses/${id}`, {
-        method: 'DELETE',
-      })
-
-      console.log("delete response:", response)
-      if (!response.ok) {
-        throw new Error('Failed to delete expense')
-      }
+      await expenseService.deleteExpense(id)
       
       // remove expense from state after successful deletion from backend
       setExpenses((currentExpenses) =>
@@ -115,23 +72,10 @@ export default function App() {
   }
 
   async function handleAdd(expense: CreateExpenseRequest) {
-
     try {
 
-      const response = await fetch('http://localhost:8080/expenses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(expense)
-      })
-
-      console.log("post expense response:", response)
-      if (!response.ok) {
-        throw new Error('Failed to add expense')
-      }
-
-      const newExpense: Expense = await response.json()
+      const newExpense: Expense = await expenseService.createExpense(expense)
+      console.log("new expense:", newExpense)
 
       // add expense to state after successful addition to backend
       setExpenses((currentExpenses) => [
@@ -173,11 +117,6 @@ if (error) {
           className="btn btn-primary"
           // on clicking button, trigger setIsFormOpen func
           onClick={() => setIsFormOpen(true)}
-          // onClick={() =>
-          //   document.getElementById('expense-form')?.scrollIntoView({
-          //     behavior: 'smooth',
-          //   })
-          // }
         >
           Add expense
         </button>
@@ -187,10 +126,6 @@ if (error) {
         total={totalExpenses}
         count={expenses.length}
       />
-
-      {/* <ExpenseForm 
-        onAdd={handleAdd}
-      /> */}
 
       {submitError && (
         <div className="alert alert-danger mt-3">
